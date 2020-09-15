@@ -10,15 +10,14 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import cn.okclouder.architecturesamples.callback.Callback1;
+import cn.okclouder.architecturesamples.contract.SampleContract;
 import cn.okclouder.architecturesamples.model.SampleModel;
 
 /**
  * @author caoshen
  * @date 2020/9/14
  */
-public class SampleActivity extends AppCompatActivity {
-
-    private SampleModel mSampleModel;
+public class SampleActivity extends AppCompatActivity implements SampleContract.View {
 
     private Button mButton;
 
@@ -27,6 +26,7 @@ public class SampleActivity extends AppCompatActivity {
     private TextView mTextAge;
 
     private TextView mTextName;
+    private SampleContract.Presenter mPresenter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -37,13 +37,17 @@ public class SampleActivity extends AppCompatActivity {
         mTextAge = findViewById(R.id.text_view_age);
         mTextName = findViewById(R.id.text_view_name);
 
-        mSampleModel = new SampleModel();
+        setPresenter(new SampleContract.Presenter());
 
-        // View to Controller
         mButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getUserInfo(mEditText.getText().toString());
+                mPresenter.getUserInfo(mEditText.getText().toString(), new Callback1<SampleModel.UserInfo>() {
+                    @Override
+                    public void onCallback(SampleModel.UserInfo userInfo) {
+                        setDataToView(userInfo);
+                    }
+                });
             }
         });
     }
@@ -51,21 +55,16 @@ public class SampleActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mSampleModel.onDestroy();
+        mPresenter.onDestroy();
     }
 
-    private void getUserInfo(String uid) {
-        // Controller to Model
-        mSampleModel.getUserInfo(uid, new Callback1<SampleModel.UserInfo>() {
-            @Override
-            public void onCallback(SampleModel.UserInfo userInfo) {
-                setDataToView(userInfo);
-            }
-        });
+    @Override
+    public void setPresenter(SampleContract.Presenter presenter) {
+        mPresenter = presenter;
     }
 
-    private void setDataToView(SampleModel.UserInfo userInfo) {
-        // Model to View
+    @Override
+    public void setDataToView(SampleModel.UserInfo userInfo) {
         mTextAge.setText(String.valueOf(userInfo.getAge()));
         mTextName.setText(userInfo.getName());
     }
