@@ -4,4 +4,6 @@
     <string name="age">年龄</string>
     <string name="name">姓名</string>
     <string name="click">点击</string>
+    <string name="zhangsan">zhangsan</string>
+    <string name="change_view_model_value">change view model value</string>
 </resources>
